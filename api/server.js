@@ -1,20 +1,23 @@
 const express = require("express")
-const helmet = require('helmet');
+const carsRouter = require('./cars/cars-router')
 const server = express();
 
-const carsRouter = require('./cars/cars-router');
+
 
 // DO YOUR MAGIC
 
-server.use(helmet());
+
 server.use(express.json());
+server.use('/api/cars', carsRouter)
+server.use('*', (req, res, next) => {
+  next({ status:404, message:'not found!'})
+});
 
-server.use('/cars', carsRouter);
+server.use((err, req, res, next) => {
+  res.status(err.status || 500).json({
+    message: err.message
+  })
+})
 
-server.get('/', (req, res) => {
-    res.send(`
-      <h2>Working Server</h>
-    `);
-  });
 
 module.exports = server
